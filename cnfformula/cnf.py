@@ -382,7 +382,7 @@ class CNF(object):
     #  Export to useful output format
     #
 
-    def dimacs(self,export_header=True):
+    def dimacs(self,export_header=True,export_varnames=True):
         """Produce the dimacs encoding of the formula
 
         >>> c=CNF([[(False,"x_1"),(True,"x_2"),(False,"x_3")],\
@@ -405,10 +405,10 @@ class CNF(object):
         """
         from cStringIO import StringIO
         output = StringIO()
-        self.dimacs_dump(output,export_header)
+        self.dimacs_dump(output,export_header,export_varnames)
         return output.getvalue()
 
-    def dimacs_dump(self,output=None,export_header=True):
+    def dimacs_dump(self,output=None,export_header=True,export_varnames=True):
         """Dump the dimacs encoding of the formula to the file-like output
         """
         assert self._coherent
@@ -420,6 +420,12 @@ class CNF(object):
         # A nice header
         if export_header:
             for s in self.header.split("\n")[:-1]: output.write( ("c "+s).rstrip()+"\n")
+
+        if export_varnames:
+            output.write("c ====varnames begin====\n")
+            for (k,v) in enumerate(self._index2name[1:],1):
+                output.write( ("c varname "+str(k)+" "+v).rstrip()+"\n")
+            output.write("c ====varnames end======\n")
 
         # Formula specification
         output.write( "p cnf {0} {1}".format(n,m) )
